@@ -41,13 +41,13 @@ export function TodoList({ type, teamId }: TodoListProps) {
 
   useEffect(() => {
     if (user) {
-      loadData();
+      loadData(true);
     }
   }, [user, type, teamId]);
 
-  const loadData = async () => {
+  const loadData = async (showLoading = true) => {
     if (!user) return;
-    setLoading(true);
+    if (showLoading) setLoading(true);
     try {
       if (type === "personal") {
         const personalTodos = await getPersonalTodos(user.uid);
@@ -64,7 +64,7 @@ export function TodoList({ type, teamId }: TodoListProps) {
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -86,11 +86,23 @@ export function TodoList({ type, teamId }: TodoListProps) {
   };
 
   const handleToggleComplete = async (todo: Todo) => {
+    const newCompleted = !todo.completed;
+    
+    // Optimistic update
+    setTodos(prev => prev.map(t => 
+      t.id === todo.id ? { ...t, completed: newCompleted } : t
+    ));
+
     try {
-      await updateTodo(todo.id, { completed: !todo.completed });
-      await loadData();
+      await updateTodo(todo.id, { completed: newCompleted });
+      // Background refresh
+      await loadData(false);
     } catch (error) {
       console.error("Error updating todo:", error);
+      // Revert on error
+      setTodos(prev => prev.map(t => 
+        t.id === todo.id ? { ...t, completed: !newCompleted } : t
+      ));
     }
   };
 
@@ -121,8 +133,8 @@ export function TodoList({ type, teamId }: TodoListProps) {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+    <Card className="py-3 md:py-6">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 px-3 pb-2 md:px-6 md:pb-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <CardTitle>
@@ -157,7 +169,8 @@ export function TodoList({ type, teamId }: TodoListProps) {
           <DialogTrigger asChild>
             <Button size="sm">
               <Plus className="mr-2 h-4 w-4" />
-              Add Todo
+              <span className="hidden md:inline">Add Todo</span>
+              <span className="md:hidden">Add</span>
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -188,7 +201,7 @@ export function TodoList({ type, teamId }: TodoListProps) {
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 md:px-6">
         {todos.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
             No todos yet. Create your first one!
@@ -198,14 +211,14 @@ export function TodoList({ type, teamId }: TodoListProps) {
             {todos.map((todo) => (
               <div
                 key={todo.id}
-                className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                className="flex items-center space-x-3 p-2 md:p-3 rounded-lg border hover:bg-accent/50 transition-colors"
               >
                 <Checkbox
                   checked={todo.completed}
                   onCheckedChange={() => handleToggleComplete(todo)}
                 />
                 <span
-                  className={`flex-1 ${
+                  className={`flex-1 text-sm md:text-base ${
                     todo.completed
                       ? "line-through text-muted-foreground"
                       : ""
@@ -217,7 +230,7 @@ export function TodoList({ type, teamId }: TodoListProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDeleteTodo(todo.id)}
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive h-8 w-8 md:h-9 md:w-9"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
