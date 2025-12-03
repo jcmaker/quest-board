@@ -44,7 +44,7 @@ AI가 코딩을 도와주는 에디터입니다. 우리는 이걸로 개발합�
    (아래 주소는 실제 깃허브 주소로 변경해주세요)
 
    ```bash
-   git clone https://github.com/YOUR_GITHUB_ID/quest-board.git
+   git clone https://github.com/jcmaker/quest-board.git
    ```
 
 2. **프로젝트 폴더로 이동**
