@@ -1,29 +1,27 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { TodoList } from "@/components/TodoList";
-import { LogIn } from "lucide-react";
 import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
 
 function MainContent() {
-  const { user, loading, signInWithGoogle } = useAuth();
+  const { user, loading } = useAuth();
   const searchParams = useSearchParams();
   const teamId = searchParams.get("teamId");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -34,28 +32,7 @@ function MainContent() {
   }
 
   if (!user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-background to-muted p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center space-y-4">
-            <div className="mx-auto">
-              <h1 className="text-4xl font-bold">Quest Board</h1>
-            </div>
-            <CardTitle className="text-2xl">Welcome!</CardTitle>
-            <CardDescription>
-              Sign in with Google to start managing your personal and team
-              todos.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={signInWithGoogle} className="w-full" size="lg">
-              <LogIn className="mr-2 h-5 w-5" />
-              Sign in with Google
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return null;
   }
 
   return (
