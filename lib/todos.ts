@@ -15,6 +15,7 @@ export interface Todo {
   id: string;
   title: string;
   completed: boolean;
+  status?: string; // Column ID for kanban board
   createdAt: Timestamp;
   userId: string;
   teamId?: string;
@@ -64,11 +65,13 @@ export async function getTeamTodos(teamId: string): Promise<Todo[]> {
 
 export async function createPersonalTodo(
   userId: string,
-  title: string
+  title: string,
+  status?: string
 ): Promise<string> {
   const docRef = await addDoc(collection(db, "todos"), {
     title,
     completed: false,
+    status: status || null,
     createdAt: Timestamp.now(),
     userId,
     teamId: null,
@@ -80,11 +83,13 @@ export async function createTeamTodo(
   userId: string,
   teamId: string,
   title: string,
-  assignedTo?: string
+  assignedTo?: string,
+  status?: string
 ): Promise<string> {
   const docRef = await addDoc(collection(db, "todos"), {
     title,
     completed: false,
+    status: status || null,
     createdAt: Timestamp.now(),
     userId,
     teamId,

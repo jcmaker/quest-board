@@ -58,6 +58,25 @@ AI가 코딩을 도와주는 에디터입니다. 우리는 이걸로 개발합�
    npm install
    ```
 
+4. **Firebase 환경 변수 설정** (중요! 🔥)
+
+   프로젝트가 Firebase를 사용하므로 환경 변수 설정이 필요합니다.
+
+   - 프로젝트 루트에 `.env.local` 파일이 생성되어 있습니다.
+   - 이 파일을 열고 `your-api-key-here` 등의 플레이스홀더를 실제 Firebase 프로젝트 값으로 교체해야 합니다.
+   - Firebase 콘솔([https://console.firebase.google.com/](https://console.firebase.google.com/))에서:
+     1. 프로젝트 선택 (또는 새로 만들기)
+     2. 프로젝트 설정 > 일반 > 내 앱 > Firebase SDK snippet > 구성
+     3. 여기 나오는 값들을 `.env.local` 파일에 복사해 넣으세요.
+
+   ```bash
+   # .env.local 파일 예시
+   NEXT_PUBLIC_FIREBASE_API_KEY=실제-API-키
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=프로젝트ID.firebaseapp.com
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=프로젝트ID
+   # ... 나머지 값들도 채워넣기
+   ```
+
 ---
 
 ## ▶️ 3. 프로젝트 실행하기
