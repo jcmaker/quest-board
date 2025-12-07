@@ -457,7 +457,7 @@ export function KanbanBoard({ type, teamId }: KanbanBoardProps) {
 
         <DragOverlay>
           {activeTodo ? (
-            <KanbanCard todo={activeTodo} onDelete={() => {}} />
+            <KanbanCard todo={activeTodo} onDelete={() => { }} onEdit={() => { }} />
           ) : null}
         </DragOverlay>
       </DndContext>
