@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /Users/yoo/Library/Mobile\\ Documents/com~apple~CloudDocs/01\\ Programs/quest-board && npm run dev:*)",
+      "Bash(cd /Users/yoo/Library/Mobile\\ Documents/com~apple~CloudDocs/01\\ Programs/quest-board:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

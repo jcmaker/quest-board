@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { TodoList } from "@/components/TodoList";
+import { KanbanBoard } from "@/components/KanbanBoard";
 import {
   SidebarProvider,
   SidebarInset,
@@ -76,7 +76,7 @@ function MainContent() {
         </header>
         <div className="flex flex-1 flex-col gap-2 p-2 md:gap-4 md:p-4 pt-0">
           <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min p-2 md:p-4">
-            <TodoList
+            <KanbanBoard
               type={teamId ? "team" : "personal"}
               teamId={teamId || undefined}
             />
