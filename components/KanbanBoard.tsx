@@ -43,6 +43,8 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { Team, getTeam } from "@/lib/teams";
 import { TeamSettingsDialog } from "@/components/TeamSettingsDialog";
+import { MeetingTranscriptDialog } from "@/components/MeetingTranscriptDialog";
+import { UserProfile, getTeamMemberProfiles } from "@/lib/users";
 import {
   Tooltip,
   TooltipContent,
@@ -60,6 +62,7 @@ export function KanbanBoard({ type, teamId }: KanbanBoardProps) {
   const [columns, setColumns] = useState<Column[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [team, setTeam] = useState<Team | null>(null);
+  const [teamMembers, setTeamMembers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isAddingColumn, setIsAddingColumn] = useState(false);
@@ -100,6 +103,12 @@ export function KanbanBoard({ type, teamId }: KanbanBoardProps) {
         setTodos(teamTodos);
         setColumns(teamColumns);
         setTeam(teamData);
+
+        // Fetch team member profiles
+        if (teamData && teamData.members.length > 0) {
+          const profiles = await getTeamMemberProfiles(teamData.members);
+          setTeamMembers(profiles);
+        }
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -234,7 +243,7 @@ export function KanbanBoard({ type, teamId }: KanbanBoardProps) {
     }
   };
 
-  const handleAddCard = async (columnId: string, title: string) => {
+  const handleAddCard = async (columnId: string, title: string, assignedTo?: string | null) => {
     if (!user) return;
 
     try {
@@ -243,7 +252,7 @@ export function KanbanBoard({ type, teamId }: KanbanBoardProps) {
         const personalTodos = await getPersonalTodos(user.uid);
         setTodos(personalTodos);
       } else if (teamId) {
-        await createTeamTodo(user.uid, teamId, title, undefined, columnId);
+        await createTeamTodo(user.uid, teamId, title, assignedTo || undefined, columnId);
         const teamTodos = await getTeamTodos(teamId);
         setTodos(teamTodos);
       }
@@ -355,7 +364,10 @@ export function KanbanBoard({ type, teamId }: KanbanBoardProps) {
               {type === "personal" ? "Personal Board" : team?.name || "Team Board"}
             </h2>
             {type === "team" && team && teamId && (
-              <TeamSettingsDialog teamId={teamId} onTeamUpdated={loadData} />
+              <>
+                <TeamSettingsDialog teamId={teamId} onTeamUpdated={loadData} />
+                <MeetingTranscriptDialog teamId={teamId} onTasksCreated={loadData} />
+              </>
             )}
           </div>
           {type === "team" && team && (
@@ -405,6 +417,8 @@ export function KanbanBoard({ type, teamId }: KanbanBoardProps) {
                 onEditCard={handleEditCard}
                 onRenameColumn={handleRenameColumn}
                 onDeleteColumn={handleDeleteColumn}
+                teamMembers={teamMembers}
+                isTeamBoard={type === "team"}
               />
             ))}
           </SortableContext>

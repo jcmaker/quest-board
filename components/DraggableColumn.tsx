@@ -5,15 +5,18 @@ import { CSS } from "@dnd-kit/utilities";
 import { KanbanColumn } from "./KanbanColumn";
 import { Column } from "@/lib/columns";
 import { Todo } from "@/lib/todos";
+import { UserProfile } from "@/lib/users";
 
 interface DraggableColumnProps {
   column: Column;
   todos: Todo[];
-  onAddCard: (columnId: string, title: string) => void;
+  onAddCard: (columnId: string, title: string, assignedTo?: string | null) => void;
   onDeleteCard: (todoId: string) => void;
   onEditCard: (todoId: string, newTitle: string) => void;
   onRenameColumn: (columnId: string, newName: string) => void;
   onDeleteColumn: (columnId: string) => void;
+  teamMembers?: UserProfile[];
+  isTeamBoard?: boolean;
 }
 
 export function DraggableColumn(props: DraggableColumnProps) {

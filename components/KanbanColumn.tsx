@@ -9,6 +9,7 @@ import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { KanbanCard } from "./KanbanCard";
 import { Todo } from "@/lib/todos";
 import { Column } from "@/lib/columns";
+import { UserProfile } from "@/lib/users";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -16,15 +17,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MentionInput } from "./MentionInput";
 
 interface KanbanColumnProps {
   column: Column;
   todos: Todo[];
-  onAddCard: (columnId: string, title: string) => void;
+  onAddCard: (columnId: string, title: string, assignedTo?: string | null) => void;
   onDeleteCard: (todoId: string) => void;
   onEditCard: (todoId: string, newTitle: string) => void;
   onRenameColumn: (columnId: string, newName: string) => void;
   onDeleteColumn: (columnId: string) => void;
+  teamMembers?: UserProfile[];
+  isTeamBoard?: boolean;
 }
 
 export function KanbanColumn({
@@ -35,6 +39,8 @@ export function KanbanColumn({
   onEditCard,
   onRenameColumn,
   onDeleteColumn,
+  teamMembers = [],
+  isTeamBoard = false,
 }: KanbanColumnProps) {
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
@@ -45,9 +51,10 @@ export function KanbanColumn({
     id: column.id,
   });
 
-  const handleAddCard = () => {
-    if (newCardTitle.trim()) {
-      onAddCard(column.id, newCardTitle.trim());
+  const handleAddCard = (title?: string, assignedTo?: string | null) => {
+    const finalTitle = title || newCardTitle.trim();
+    if (finalTitle) {
+      onAddCard(column.id, finalTitle, assignedTo);
       setNewCardTitle("");
       setIsAddingCard(false);
     }
@@ -129,23 +136,37 @@ export function KanbanColumn({
 
           {isAddingCard ? (
             <div className="space-y-2">
-              <Input
-                placeholder="Card title..."
-                value={newCardTitle}
-                onChange={(e) => setNewCardTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAddCard();
-                  if (e.key === "Escape") {
+              {isTeamBoard && teamMembers.length > 0 ? (
+                <MentionInput
+                  value={newCardTitle}
+                  onChange={setNewCardTitle}
+                  onSubmit={(title, assignedTo) => handleAddCard(title, assignedTo)}
+                  onCancel={() => {
                     setIsAddingCard(false);
                     setNewCardTitle("");
-                  }
-                }}
-                autoFocus
-                className="text-sm"
-              />
+                  }}
+                  teamMembers={teamMembers}
+                  placeholder="카드 제목... (@로 멘션)"
+                />
+              ) : (
+                <Input
+                  placeholder="카드 제목..."
+                  value={newCardTitle}
+                  onChange={(e) => setNewCardTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleAddCard();
+                    if (e.key === "Escape") {
+                      setIsAddingCard(false);
+                      setNewCardTitle("");
+                    }
+                  }}
+                  autoFocus
+                  className="text-sm"
+                />
+              )}
               <div className="flex gap-2">
-                <Button size="sm" onClick={handleAddCard}>
-                  Add
+                <Button size="sm" onClick={() => handleAddCard()}>
+                  추가
                 </Button>
                 <Button
                   size="sm"
@@ -155,7 +176,7 @@ export function KanbanColumn({
                     setNewCardTitle("");
                   }}
                 >
-                  Cancel
+                  취소
                 </Button>
               </div>
             </div>

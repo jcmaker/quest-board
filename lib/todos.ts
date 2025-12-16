@@ -111,3 +111,27 @@ export async function deleteTodo(todoId: string): Promise<void> {
   await deleteDoc(todoRef);
 }
 
+export async function createTeamTodosBatch(
+  userId: string,
+  teamId: string,
+  todos: { title: string; assignedTo?: string }[],
+  defaultColumnId: string
+): Promise<string[]> {
+  const createdIds: string[] = [];
+
+  for (const todo of todos) {
+    const docRef = await addDoc(collection(db, "todos"), {
+      title: todo.title,
+      completed: false,
+      status: defaultColumnId,
+      createdAt: Timestamp.now(),
+      userId,
+      teamId,
+      assignedTo: todo.assignedTo || null,
+    });
+    createdIds.push(docRef.id);
+  }
+
+  return createdIds;
+}
+
